@@ -1,0 +1,34 @@
+response_id	control_number	client_type	client_classification	transaction_type	sex	age	region_of_residence	service_availed	name_of_office	service_provider_name	service_provider_position	cc1	cc2	cc3	sqd0	sqd1	sqd2	sqd3	sqd4	sqd5	sqd6	sqd7	sqd8	experienced_harassment	harassment_details	would_recommend_clsu	suggestions	email_address	submitted_at	qr_id	
+
+
+
+QR-CODE activation:
+
+// if ($token) {
+//     $stmt = $pdo->prepare("
+//         SELECT q.qr_id, d.department_name 
+//         FROM qr_code q
+//         JOIN department d ON q.department_id = d.department_id
+//         WHERE q.qr_token = ? AND q.is_active = 1
+//     ");
+//     $stmt->execute([$token]);
+//     $qrRoute = $stmt->fetch();
+
+//     if ($qrRoute) {
+//         $detected_qr_id = $qrRoute['qr_id'];
+//         $detected_dept_name = $qrRoute['department_name'];
+//     } else {
+//         die("<div style='text-align:center; padding: 50px; font-family: sans-serif;'><h3>Error: This QR code is inactive or does not exist.</h3></div>");
+//     }
+// } else {
+//     die("<div style='text-align:center; padding: 50px; font-family: sans-serif;'><h3>Error: Invalid or missing QR code scan token. Please scan a department's QR code.</h3></div>");
+// }
+
+// $require_header = __DIR__ . '/../includes/header.php';
+// $require_footer = __DIR__ . '/../includes/footer.php';
+// $require_auth   = __DIR__ . '/../src/auth.php';
+
+// require_once $require_auth;
+// require_once $require_header;
+
+// $auth = new Auth($pdo)
