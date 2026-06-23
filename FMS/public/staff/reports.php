@@ -1,4 +1,5 @@
-<?if (session_status() === PHP_SESSION_NONE) {
+<?php
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
@@ -7,31 +8,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
     exit;
 }
 
-$require_config  = __DIR__ . '/../../config/database.php';
-$require_metrics = __DIR__ . '/../../src/StaffMetrics.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src/StaffMetrics.php';
 
-require_once $require_config;
-require_once $require_metrics;
-
-$dbInstance = new Database();
-$pdo = $dbInstance->connect();
-
+$pdo = (new Database())->connect();
 $departmentId = $_SESSION['department_id'] ?? 1; 
 $staffMetrics = new StaffMetrics($pdo, $departmentId);
 
 $deptName = $staffMetrics->getDepartmentName();
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports</title>
-</head>
-<style>
-     :root {
+    <title>Staff Portal - Report <?php echo htmlspecialchars($deptName); ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
             --sidebar-width: 260px;
             --primary-green: #006400;
             --dark-surface: #1e1e2d;
@@ -74,7 +68,8 @@ $deptName = $staffMetrics->getDepartmentName();
         .sidebar-menu { 
             list-style: none; 
             padding: 0; 
-            margin:0; }
+            margin:0; 
+        }
 
         .sidebar-item a {
             display: flex; 
@@ -84,6 +79,7 @@ $deptName = $staffMetrics->getDepartmentName();
             text-decoration: none; 
             transition: all 0.2s;
         }
+
         .sidebar-item a:hover,
         .sidebar-item.active a {
             color: #ffffff;
@@ -134,19 +130,47 @@ $deptName = $staffMetrics->getDepartmentName();
             padding: 30px;
             flex-grow: 1;
         }
-</style>
+
+        .chart-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .chart-card h2 {
+            margin: 0 0 20px 0;
+            font-size: 15px;
+            color: #181c32;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
 <body>
-    <nav id="sidebar">
+
+<nav id="sidebar">
     <div class="sidebar-brand">FMS Staff Portal</div>
     <ul class="sidebar-menu">
-        <li class="sidebar-item active">
+        <li class="sidebar-item">
             <a href="dashboard.php">
                 <i class="fa-solid fa-chart-line sidebar-icon"></i>
                 <span>Dashboard</span>
             </a>
         </li>
-        <li class="sidebar-item">
-            <a href="../staff/reports.php">
+        <li class="sidebar-item active">
+            <a href="reports.php">
                 <i class="fa-solid fa-folder-open sidebar-icon"></i>
                 <span>Reports</span>
             </a>
@@ -160,56 +184,55 @@ $deptName = $staffMetrics->getDepartmentName();
     </ul>
 </nav>
 
-    <div id="content-wrapper">
-        <header class="top-navbar">
+<div id="content-wrapper">
+    <header class="top-navbar">
         <div style="font-weight: 600; font-size: 18px; display: flex; align-items: center;">
             <button class="hamburger-trigger" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
-            <i class="fa-solid fa-building" style="color: var(--primary-blue); margin-right: 10px;"></i>
+            <i class="fa-solid fa-building" style="color: var(--primary-green); margin-right: 10px;"></i>
              <?php echo htmlspecialchars($deptName); ?>
         </div>
         <div>
             User: <?php echo htmlspecialchars($_SESSION['firstname']); ?> (Staff)
         </div>
     </header>
-<div class="chart-card">
-    <h2>Generate Monthly Report</h2>
-    <form action="process_report.php" method="POST" style="display: flex; gap: 15px; align-items: flex-end;">
-        <input type="hidden" name="action" value="generate">
-        
-        <div style="display: flex; flex-direction: column;">
-            <label style="margin-bottom: 5px; font-size: 12px; font-weight: 600;">Month</label>
-            <select name="target_month" required style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
-                <option value="January">January</option>
-                <option value="February">February</option>
-                <option value="March">March</option>
-                <option value="April">April</option>
-                <option value="May">May</option>
-                <option value="June">June</option>
-                <option value="July">July</option>
-                <option value="August">August</option>
-                <option value="September">September</option>
-                <option value="October">October</option>
-                <option value="November">November</option>
-                <option value="December">December</option>
-            </select>
+
+    <main class="workspace-padding">
+        <div class="chart-card">
+            <h2>Generate Monthly Report</h2>
+            <form action="process_report.php" method="POST" style="display: flex; gap: 15px; align-items: flex-end;">
+                <input type="hidden" name="action" value="generate">
+                
+                <div style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 5px; font-size: 12px; font-weight: 600;">Month</label>
+                    <select name="target_month" required style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 5px; font-size: 12px; font-weight: 600;">Year</label>
+                    <input type="number" name="target_year" value="2026" required style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; width: 80px;">
+                </div>
+
+                <button type="submit" class="btn-submit">Compile Draft</button>
+            </form>
         </div>
-
-        <div style="display: flex; flex-direction: column;">
-            <label style="margin-bottom: 5px; font-size: 12px; font-weight: 600;">Year</label>
-            <input type="number" name="target_year" value="2026" required style="padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; width: 80px;">
-        </div>
-
-        <button type="submit" class="btn-submit">Compile Draft</button>
-    </form>
-</div>
-    </div>  
-
-
-</body>
-</html>
+    </main>
+</div>  
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const menuToggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
         const wrapper = document.getElementById('content-wrapper');
@@ -219,9 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wrapper.classList.toggle('expanded');
         });
     });
-
-
 </script>
 
-
-
+</body>
+</html>
